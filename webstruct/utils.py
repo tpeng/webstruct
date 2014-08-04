@@ -329,22 +329,30 @@ def fuzzy_assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
     It first finds the candidates using the given regex
     pattern and then compare similarity to the ``choices``,
     if the similarity to any ``choices`` exceed the ``threshold``, assign the
-    ``BIO`` entity to corresponding tags.
+    ``BIO`` entities to corresponding tags.
 
-    this function is helpful when having a partially labeled dataset.
+    this function could be useful when having a partially labeled dataset to generate
+    the training data. it relies on fuzzywuzzy_ to performance the fuzzy match.
+
+    NB, the ``pattern`` should include the whitespaces (include unicode space and non-breaking spaces).
+
+    .. _fuzzywuzzy: https://github.com/seatgeek/fuzzywuzzy
+
     """
     tokens = [html_token.token for html_token in html_tokens]
     iob_encoder = IobEncoder()
 
     from fuzzywuzzy import process
+
     def repl(m):
         if process.extractBests(m.group(0), choices, score_cutoff=threshold * 100):
-            return u' __START_{0}__  {1}  __END_{0}__ '.format(entity, m.group(0))
+            return u' __START_{0}__ {1} __END_{0}__ '.format(entity, m.group(0))
         return m.group(0)
 
     text = re.sub(pattern, repl, u" ".join(tokens), flags=re.I | re.U | re.DOTALL)
     tags = [tag for _, tag in iob_encoder.encode(text.split())]
-    assert len(html_tokens) == len(tags)
+    assert len(html_tokens) == len(tags), 'len(html_tokens): %s and len(tags): %s are not matched' % \
+                (len(html_tokens), len(tags))
     return tags
 
 def merge_bio_tags(*tag_list):
