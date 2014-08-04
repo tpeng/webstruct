@@ -323,6 +323,9 @@ def train_test_split_noshuffle(*arrays, **options):
         (a[:-test_size], a[-test_size:]) for a in arrays
     ))
 
+# adapted from http://en.wikipedia.org/wiki/Space_(punctuation)#Spaces_in_Unicode
+SPACES_SRE = ur'[\s\u0020\u00a0\u1680\u18e0\u2000-\u200d\u202f\u205f\u2060\u3000\ufeff]+'
+
 def fuzzy_assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
     """Assign the BIO tags with fuzzy string matching.
 
@@ -334,7 +337,7 @@ def fuzzy_assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
     this function could be useful when having a partially labeled dataset to generate
     the training data. it relies on fuzzywuzzy_ to performance the fuzzy match.
 
-    NB, the ``pattern`` should include the whitespaces (include unicode space and non-breaking spaces).
+    NB, the ``pattern`` should include the whitespaces see ``SPACES_SRE``.
 
     .. _fuzzywuzzy: https://github.com/seatgeek/fuzzywuzzy
 

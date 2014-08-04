@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from webstruct.utils import human_sorted, fuzzy_assign_bio_tags, merge_bio_tags
 from webstruct import HtmlTokenizer
 from webstruct.utils import html_document_fromstring
+from webstruct.utils import SPACES_SRE
 
 def test_human_sorted():
     assert human_sorted(['5', '10', '7', '100']) == ['5', '7', '10', '100']
@@ -18,7 +19,7 @@ def test_fuzzy_assign_bio_tags():
     """
     html_tokenizer = HtmlTokenizer()
     html_tokens, tags = html_tokenizer.tokenize_single(html_document_fromstring(html))
-    pattern = ur'(Postbus.*?Oostburg)'
+    pattern = ur'(^|{0})Postbus.*?Oostburg({0}|$)'.format(SPACES_SRE)
     choices = ['Postbus 22 4500AA Oostburg']
     tags = fuzzy_assign_bio_tags(html_tokens, pattern, 'ADDR', choices)
     assert tags == ['O', 'B-ADDR', 'I-ADDR', 'I-ADDR', 'I-ADDR', 'I-ADDR', 'O', 'O', 'O']
@@ -29,7 +30,7 @@ def test_fuzzy_assign_bio_tags():
         </div>
     """
     html_tokens, tags = html_tokenizer.tokenize_single(html_document_fromstring(html))
-    pattern = ur'(Postbus.*?Oostburg\s+(the\s+)?ne(d|th)erlands?)'
+    pattern = ur'(^|{0})Postbus.*?Oostburg{0}((the\s+)?ne(d|th)erlands?)?'.format(SPACES_SRE)
     choices = ['Postbus 22 4500AA Oostburg', 'Postbus 22 4500AA Oostburg the netherlands']
     tags = fuzzy_assign_bio_tags(html_tokens, pattern, 'ADDR', choices)
     # tokens == [u'013-Witgoedreparaties.nl', u'Postbus', u'27', u'4500', u'AA', u'Oostburg',
@@ -38,7 +39,7 @@ def test_fuzzy_assign_bio_tags():
 
     html = """<title>013-witgoedreparaties.nl | 013-witgoedreparaties.nl | title </title>"""
     html_tokens, tags = html_tokenizer.tokenize_single(html_document_fromstring(html))
-    pattern = ur'013-Witgoedreparaties.nl'
+    pattern = ur'(^|{0})013-Witgoedreparaties.nl({0}|$)'.format(SPACES_SRE)
     choices = ['013-witgoedreparaties.nl']
     tags = fuzzy_assign_bio_tags(html_tokens, pattern, 'ORG', choices)
     # tokens = [u'013-witgoedreparaties.nl', u'|', u'013-witgoedreparaties.nl', u'|', u'title']
@@ -48,8 +49,15 @@ def test_fuzzy_assign_bio_tags_with_zero_width_space():
     html_tokenizer = HtmlTokenizer()
     html = """<title>013-witgoedreparaties.nl | &#8203;013-witgoedreparaties.nl | title </title>"""
     html_tokens, tags = html_tokenizer.tokenize_single(html_document_fromstring(html))
-    tokens = [t.token for t in html_tokens]
-    pattern = ur'(^|\s+|\u200b+)013-Witgoedreparaties.nl\s+'
+    pattern = ur'(^|{0})013-Witgoedreparaties.nl({0}|$)'.format(SPACES_SRE)
+    choices = ['013-witgoedreparaties.nl']
+
+    tags = fuzzy_assign_bio_tags(html_tokens, pattern, 'ORG', choices)
+    # tokens = [u'013-witgoedreparaties.nl', u'|', u'013-witgoedreparaties.nl', u'|', u'title']
+    assert tags == ['B-ORG', 'O', 'B-ORG', 'O', 'O']
+
+    html = """<title>013-witgoedreparaties.nl | &nbsp;013-witgoedreparaties.nl | title </title>"""
+    html_tokens, tags = html_tokenizer.tokenize_single(html_document_fromstring(html))
     choices = ['013-witgoedreparaties.nl']
 
     tags = fuzzy_assign_bio_tags(html_tokens, pattern, 'ORG', choices)
