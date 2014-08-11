@@ -6,7 +6,6 @@ from functools import partial
 from itertools import chain
 import lxml.html
 from lxml.etree import iterwalk
-from webstruct.sequence_encoding import IobEncoder
 
 def merge_dicts(*dicts):
     """
