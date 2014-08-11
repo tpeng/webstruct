@@ -7,6 +7,7 @@ from itertools import chain
 import lxml.html
 from lxml.etree import iterwalk
 
+
 def merge_dicts(*dicts):
     """
     >>> sorted(merge_dicts({'foo': 'bar'}, {'bar': 'baz'}).items())
