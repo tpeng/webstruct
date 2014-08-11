@@ -1,4 +1,4 @@
-from webstruct.semi.fuzzymatch import assign_bio_tags, merge_bio_tags, SPACES_SRE
+from webstruct.fuzzymatch import assign_bio_tags, merge_bio_tags, SPACES_SRE
 from webstruct import HtmlTokenizer
 from webstruct.utils import html_document_fromstring
 
@@ -58,5 +58,8 @@ def test_fuzzy_assign_bio_tags_with_non_break_spaces():
 
 
 def test_merge_bio_tags():
+    tags = merge_bio_tags(['B-ORG', 'O', 'B-ORG', 'O', 'O'], ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O'])
+    assert tags == ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O']
+
     tags = merge_bio_tags(['B-ORG', 'O', 'B-ORG', 'O', 'O'], ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O'])
     assert tags == ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O']

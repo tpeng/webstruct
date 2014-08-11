@@ -78,8 +78,8 @@ def merge_bio_tags(*tag_list):
     """Merge BIO tags"""
     def select_tag(x, y):
 
-        if x != 'O' and y != 'O' and x.split('-')[-1] == y.split('-')[-1]:
-            warnings.warn('conflict BIO tag %s %s' % (x, y))
+        if x != 'O' and y != 'O' and x[2:] != y[2:]:
+            warnings.warn('conflict BIO tag: %s %s' % (x, y))
 
         # later one wins
         if y != 'O':
