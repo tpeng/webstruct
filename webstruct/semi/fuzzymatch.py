@@ -7,12 +7,16 @@ it need fuzzywuzzy_ installed.
 
 """
 import re
+import warnings
 from webstruct.sequence_encoding import IobEncoder
 
 # adapted from http://en.wikipedia.org/wiki/Space_(punctuation)#Spaces_in_Unicode
 SPACES_SRE = ur'[\s\u0020\u00a0\u1680\u18e0\u2000-\u200d\u202f\u205f\u2060\u3000\ufeff]+'
 
-def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
+def identity(x):
+    return x
+
+def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9, postprocess=identity, verbose=False):
     """Assign the BIO tags with fuzzy string match.
 
     It first finds the candidates using the given regex
@@ -38,6 +42,9 @@ def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
     threshold: float
         a float value to decide if found text should assign to given entity.
 
+    postprocess: function
+        a function to post process the matched text before compare to ``choices``
+
     Returns
     -------
     a list of BIO tags
@@ -53,7 +60,11 @@ def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9):
     from fuzzywuzzy import process
 
     def repl(m):
-        if process.extractBests(m.group(0), choices, score_cutoff=threshold * 100):
+        extracted = postprocess(m.group(0))
+        if verbose:
+            print extracted, choices
+
+        if process.extractBests(extracted, choices, score_cutoff=threshold * 100):
             return u' __START_{0}__ {1} __END_{0}__ '.format(entity, m.group(0))
         return m.group(0)
 
@@ -67,9 +78,8 @@ def merge_bio_tags(*tag_list):
     """Merge BIO tags"""
     def select_tag(x, y):
 
-        if x != 'O' and y != 'O':
-            # should be in same entity type
-            assert x.split('-')[1] == y.split('-')[1]
+        if x != 'O' and y != 'O' and x.split('-')[-1] == y.split('-')[-1]:
+            warnings.warn('conflict BIO tag %s %s' % (x, y))
 
         # later one wins
         if y != 'O':
