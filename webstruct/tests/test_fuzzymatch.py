@@ -61,5 +61,11 @@ def test_merge_bio_tags():
     tags = merge_bio_tags(['B-ORG', 'O', 'B-ORG', 'O', 'O'], ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O'])
     assert tags == ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O']
 
-    tags = merge_bio_tags(['B-ORG', 'O', 'B-ORG', 'O', 'O'], ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O'])
-    assert tags == ['B-ORG', 'B-ADDR', 'B-ORG', 'O', 'O']
+    # I-ORG conflict with O
+    tags = merge_bio_tags(['B-ORG', 'I-ORG', 'B-ORG', 'O', 'O'], ['B-ORG', 'O', 'B-ORG', 'O', 'O'])
+    assert tags == ['B-ORG', 'I-ORG', 'B-ORG', 'O', 'O']
+
+    # merge 3 tag list
+    tags = merge_bio_tags(['B-ORG', 'O', 'B-ORG', 'O', 'O'], ['B-ORG', 'I-ORG', 'B-ORG', 'O', 'O'],
+        ['O', 'O', 'O', 'B-ADDR', 'I-ADDR'])
+    assert tags == ['B-ORG', 'I-ORG', 'B-ORG', 'B-ADDR', 'I-ADDR']

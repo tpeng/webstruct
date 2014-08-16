@@ -31,7 +31,7 @@ def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9, postpr
         a list of ``HtmlToken``
 
     pattern: string
-        a regex pattern used to find the match string from the text joinned from ``html_tokens``
+        a regex pattern used to find the match string from the text joined from ``html_tokens``
 
     entity : string
         the entitiy type (e.g. ADDR or ORG) want to assign to.
@@ -51,7 +51,7 @@ def assign_bio_tags(html_tokens, pattern, entity, choices, threshold=0.9, postpr
 
     Notes
     -----
-    the ``pattern`` should include the whitespaces see ``SPACES_SRE``.
+    the ``pattern`` should include the whitespaces, see ``SPACES_SRE``.
 
     """
     tokens = [html_token.token for html_token in html_tokens]
