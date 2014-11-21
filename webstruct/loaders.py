@@ -91,6 +91,8 @@ class WebAnnotatorLoader(HtmlLoader):
     def _process_entities(self, entities):
         for _id, elems in entities.items():
             tp = elems[0].attrib['wa-type']
+            if tp == 'FAX':
+                tp = "TEL"
             elems[0].text = ' __START_%s__ %s' % (tp, elems[0].text or '')
             elems[-1].text = '%s __END_%s__ ' % (elems[-1].text or '', tp)
             for el in elems:

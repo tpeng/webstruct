@@ -28,6 +28,10 @@ def parent_tag(html_token):
     return {'parent_tag': html_token.parent.tag}
 
 
+def html_tag(html_token):
+    return {'html_tag': html_token.elem.tag}
+
+
 class InsideTag(object):
     def __init__(self, tagname):
         self.tagname = tagname
@@ -40,7 +44,7 @@ class InsideTag(object):
 def borders(html_token):
     return {
         'border_at_left': html_token.index == 0,
-        'border_at_right': html_token.index == len(html_token.tokens)-1,
+        'border_at_right': html_token.index == len(html_token.tokens)-1
     }
 
 

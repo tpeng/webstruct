@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import collections
 from webstruct.utils import LongestMatch
+
 
 
 class LongestMatchGlobalFeature(object):
@@ -99,4 +101,13 @@ def _add_pattern_features(feature_dicts, pattern, out_value, missing_value, sepa
 
         # FIXME: there should be a cleaner/faster way
         if not all(v == out_value for v in values):
-            featdict[separator.join(keys)] = separator.join(values)
+            featdict[separator.join(keys)] = separator.join([unicode(v) for v in values])
+
+
+def tf(doc):
+    feature_dicts = [feat for _, feat in doc]
+    tokens = [token.token for token, _ in doc]
+    c = collections.Counter(tokens)
+ 
+    for featdict in feature_dicts:
+        featdict['%s:tf' % featdict['token']] = c[featdict['token']]

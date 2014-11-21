@@ -101,7 +101,7 @@ def bio_classification_report(y_true, y_pred):
     """
     y_true_combined = list(chain.from_iterable(y_true))
     y_pred_combined = list(chain.from_iterable(y_pred))
-    tagset = (set(y_true_combined) | set(y_pred_combined)) - {'O'}
+    tagset = (set(y_true_combined) | set(y_pred_combined))
     return classification_report(
         y_true_combined,
         y_pred_combined,
